@@ -1,0 +1,62 @@
+{{- $root := . -}}
+{{- $baseChartValues := index .Values "cray-service" -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cray-uan-mgr-cfgmap
+data:
+  cray-uan-mgr.yaml: |
+    #
+    # Copyright 2019, Cray Inc.  All Rights Reserved.
+    #
+    # Cray User Access Node Manager Configuration file.
+    #
+    # This file provides the configuration data for the user access node 
+    # manager.
+    #
+    ---
+    # UAN Instance IP/hostname.
+    # This section defines the external IP/hostname that UAN instance access
+    # will use.
+    uan_ip: "{{ .Values.uanConfig.ip }}"
+
+    # UAN System DNS domain name e.g. 'my-system.my-site.net' which will be
+    # used in conjunction with a customer network specifier ('cmn', 'chn' or
+    # 'can') and a UAI name to compose an external DNS name for public IP UAIs.
+    # For example:
+    #
+    #    uai-broker-7657fa61.can.my-system.my-site.net
+    dns_domain: "{{ .Values.uanConfig.dns_domain }}"
+
+    # UAN Ports
+    # This section defines the ports that the UAN instance services will expose
+    # for user access.
+    uan_ports:
+      {{- toYaml .Values.uanConfig.ports | trimSuffix "\n" | nindent 6 }}
+
+    # UAN Service Types
+    # This section defines the service types that the UAN instance will use for
+    # user ssh and UAI service I/O.
+    # uan_ssh_type: defines the service type for user ssh access to the UAI.
+    uan_ssh_type: "{{ .Values.uanConfig.uan_ssh_type }}"
+
+    # UAN Service Load Balancer Pools
+    # This section defines the service load balancer IP pools that the UAN
+    # instance will use for user ssh and UAI service I/O.
+    # uan_ssh_lb_pool: defines the service load balancer IP pool for user ssh access to the UAI.
+    uan_ssh_lb_pool: "{{ .Values.uanConfig.uan_ssh_lb_pool }}"
+
+    # Volume mounts.
+    # This section defines which filesystems will be volume mounted from the
+    # host to the UAN instance.
+    #   name: name of the mount
+    #   mount_path: absolute path where the UAN instance should mount this volume.
+    #   host_path: absolute path on the host system of the volume to mount.
+    #
+    volume_mounts:
+      {{- toYaml .Values.uanConfig.volumeMounts | trimSuffix "\n" | nindent 6 }}
+
+    # UAI Namespace is the name of the kubernetes namespace (usually 'user')
+    # where end-user UAIs will be created.
+    uai_namespace: "{{ .Values.uanConfig.uai_namespace }}"

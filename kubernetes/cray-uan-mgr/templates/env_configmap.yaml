@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cray-uan-mgr-config
+data:
+  # Settings injected into the 'cray-uan-mgr' container environment
+  cray-uan-mgr.use_macvlan: "{{ .Values.uanConfig.use_macvlan }}"
+  cray-uan-mgr.logging_level: "{{ .Values.uanConfig.logging_level }}"
+  cray-uan-mgr.require_bican: "{{ .Values.uanConfig.require_bican }}"

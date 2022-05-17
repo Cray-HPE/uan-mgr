@@ -1,0 +1,10 @@
+.tox/
+cray_uan_mgr.egg-info/
+**/__pycache__
+.vscode/
+tmp
+uan_env
+*.pyc
+swagger_server/swagger.yaml
+doc/toc
+

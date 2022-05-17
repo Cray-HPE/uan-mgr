@@ -1,0 +1,154 @@
+# Please https://stash.us.cray.com/projects/CLOUD/repos/cray-charts/browse/stable/cray-service/values.yaml?at=refs%2Fheads%2Fmaster
+# for more info on values you can set/override.
+uasConfig:
+  ip: 192.0.2.1
+  ports:
+    - 30123
+  uas_ssh_type: "LoadBalancer"
+  uas_ssh_lb_pool: "customer-access"
+  dns_domain: "local"  # override this with the system FQDN (e.g. 'my-system.my-site.org')
+
+# Fail secure (true) or compatible (false) if no BICAN
+# can be detected
+  require_bican: false
+
+# UAI namespace
+  uai_namespace: "user"
+  broker_namespace: "uas"
+
+# Configure the logging level to use in UAS manager.  Levels are
+# debug, info, warning, error.
+  logging_level: "info"
+
+# macvlan setttings
+  use_macvlan: true
+  uai_macvlan_interface: "vlan002"
+  uai_macvlan_network: 10.252.0.0/17
+  uai_macvlan_range_start: 10.252.124.10
+  uai_macvlan_range_end: 10.252.125.244
+  uai_macvlan_routes:
+  - subnet: 10.100.104.0/23
+    gw: 10.252.0.1
+
+# UAI volume mounts
+  volumeMounts:
+    - name: lustre
+      mount_path: /lus
+      host_path: /lus
+      type: DirectoryOrCreate
+    - name: timezone
+      mount_path: /etc/localtime
+      host_path: /etc/localtime
+      type: FileOrCreate
+
+uaiResources:
+  quota:
+    cpu: 50
+    memory: 100Gi
+    pods: 100
+  default_limits:
+    cpu: 500m
+    memory: 1Gi
+  default_request:
+    cpu: 500m
+    memory: 1Gi
+brokerResources:
+  quota:
+    cpu: 1
+    memory: 2Gi
+    pods: 10
+  default_limits:
+    cpu: 100m
+    memory: 200M
+  default_request:
+    cpu: 100m
+    memory: 200M
+
+cray-service:
+  type: Deployment
+  replicaCount: 2
+  nameOverride: cray-uan-mgr
+  serviceAccountName: "cray-uan-mgr"
+
+  volumes:
+    cray-uan-mgr-cfgmap:
+      name: cray-uan-mgr-cfgmap
+      configMap:
+        name: cray-uan-mgr-cfgmap
+    ca-vol:
+      name: ca-vol
+      configMap:
+        name: cray-configmap-ca-public-key
+
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 50
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - cray-uan-mgr
+          topologyKey: kubernetes.io/hostname
+
+  service:
+    ports:
+    - port: 8088
+      name: http
+      protocol: TCP
+      targetPort: http
+
+  containers:
+    cray-uan-mgr:
+      name: cray-uan-mgr
+      image:
+        repository: artifactory.algol60.net/csm-docker/stable/cray-uan-mgr
+      env:
+        # The following ENV variable settings are taken from
+        # 'templates/env_configmap.yaml' which, in turn takes
+        # templated values from the config found here.  That makes it
+        # easier to override environment variable settings.  Don't set
+        # environment variables directly here. Instead add what you
+        # need to config here and then template the env settings in
+        # 'env_configmap.yaml'.
+        # Configure the logging level to use in UAN manager.  Levels are
+        # debug, info, warning, error.
+        - name: UAN_LOGGING_LEVEL
+          valueFrom:
+            configMapKeyRef:
+              name: cray-uan-mgr-config
+              key: cray-uan-mgr.logging_level
+      ports:
+        - name: http
+          containerPort: 8088
+      resources:
+        requests:
+          memory: "128Mi"
+          cpu: "100m"
+        limits:
+          memory: "256Mi"
+          cpu: "500m"
+      livenessProbe:
+        httpGet:
+          port: 8088
+          path: /v1/mgr-info
+        initialDelaySeconds: 5
+        periodSeconds: 3
+      readinessProbe:
+        httpGet:
+          port: 8088
+          path: /v1/mgr-info
+        initialDelaySeconds: 5
+        periodSeconds: 3
+      volumeMounts:
+        - name: cray-uan-mgr-cfgmap
+          mountPath: /etc/uas
+        - name: ca-vol
+          mountPath: /mnt/ca-vol
+
+  ingress:
+    enabled: true
+    prefix: /apis/uan-mgr/
+    uri: /
