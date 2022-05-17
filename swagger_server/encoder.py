@@ -20,7 +20,7 @@
 # ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 # OTHER DEALINGS IN THE SOFTWARE.
 """
-JSON Encoder to support UAS
+JSON Encoder to support UAN
 """
 
 import six
@@ -30,7 +30,7 @@ from swagger_server.models.base_model_ import Model
 
 
 class JSONEncoder(FlaskJSONEncoder):  # pylint: disable=too-few-public-methods
-    """Encoder Class for UAS
+    """Encoder Class for UAN
 
     """
     include_nulls = False

@@ -23,9 +23,9 @@
 # pylint: disable=missing-docstring
 
 def root_get():
-    """List supported UAS API versions
+    """List supported UAN API versions
 
-    Returns supported UAS API versions
+    Returns supported UAN API versions
 
 
     :rtype: Versions
