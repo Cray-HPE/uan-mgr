@@ -27,21 +27,11 @@ Base Class for User Access Service Operations
 Copyright 2020 Hewlett Packard Enterprise Development LP
 """
 
-import time
-import uuid
-from datetime import datetime, timezone
-from flask import abort
-from kubernetes import config, client
-from kubernetes.client.rest import ApiException
+from kubernetes import config
 from kubernetes.client import Configuration
-from kubernetes.client.api import core_v1_api
-from swagger_server.uan_lib.uan_logging import logger
 from swagger_server.uan_lib.uan_cfg import UanCfg
 
-# picking 40 seconds so that it's under the gateway timeout
-UAI_IP_TIMEOUT = 40
-
-
+#pylint: disable=too-few-public-methods
 class UanBase:
     """Base class used for any class implementing UAN API functionality.
     Takes care of common activities like K8s client setup, loading UAN
@@ -57,6 +47,4 @@ class UanBase:
             k8s_config = Configuration()
             k8s_config.assert_hostname = False
         Configuration.set_default(k8s_config)
-        self.api = core_v1_api.CoreV1Api()
-        self.batch_v1 = client.BatchV1Api()
         self.uas_cfg = UanCfg()

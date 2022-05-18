@@ -23,13 +23,10 @@
 Class that implements UAN operations that require user attributes
 """
 
-import random
-from flask import abort, request
-from swagger_server.uan_lib.uan_logging import logger
 from swagger_server.uan_lib.uan_base import UanBase
-from swagger_server.uan_lib.uan_instance import UANInstance
 
 
+#pylint: disable=too-few-public-methods
 class UanManager(UanBase):
     """UAN Manager - manages UAN resources and allocates and controls UANs
 
@@ -38,7 +35,7 @@ class UanManager(UanBase):
         """ Constructor """
         UanBase.__init__(self)
 
-    def reap_uais(self):
+    def reap_uais(self): #pylint: disable=no-self-use
         """Blah
 
         """

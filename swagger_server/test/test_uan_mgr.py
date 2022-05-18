@@ -27,12 +27,8 @@
 import unittest
 import os
 import io
-from datetime import datetime, timezone, timedelta
-import json
-import uuid
-import werkzeug
 import flask
-from swagger_server.uan_lib.uas_mgr import UanManager
+from swagger_server.uan_lib.uan_mgr import UanManager
 
 
 app = flask.Flask(__name__)  # pylint: disable=invalid-name

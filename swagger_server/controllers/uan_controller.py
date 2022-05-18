@@ -23,8 +23,6 @@
 
 """
 
-import io
-
 from swagger_server import version
 from swagger_server.uan_lib.uan_mgr import UanManager
 from swagger_server.uan_lib.uan_cfg import UanCfg
@@ -33,10 +31,10 @@ from swagger_server.uan_lib.uan_cfg import UanCfg
 uan_cfg = UanCfg()  # pylint: disable=invalid-name
 
 
-def get_uas_mgr_info():
-    """List uas-mgr service info
+def get_uan_mgr_info():
+    """List uan-mgr service info
 
-    List uas-mgr service info
+    List uan-mgr service info
 
     :rtype: object
     """

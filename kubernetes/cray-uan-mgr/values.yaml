@@ -152,3 +152,6 @@ cray-service:
     enabled: true
     prefix: /apis/uan-mgr/
     uri: /
+
+global:
+  appVersion: 0.0.1

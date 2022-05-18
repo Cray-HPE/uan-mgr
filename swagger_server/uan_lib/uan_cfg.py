@@ -23,15 +23,15 @@
    Manages Cray User Access Node instances.
 """
 
-import os
 import json
 import yaml
 from flask import abort
-from kubernetes import client
+#from kubernetes import client
 import requests
 from swagger_server.uan_lib.uan_logging import logger
 
 
+#pylint: disable=too-few-public-methods
 class UanCfg:
     """
     The UanCfg class provides the site configuration data to the
@@ -70,7 +70,7 @@ class UanCfg:
 
 
     @staticmethod
-    def __get_sls_networks():
+    def __get_sls_networks(): #pylint: disable=unused-private-member
         """Call into the SLS to get the list of configured networks
 
         """
@@ -98,60 +98,3 @@ class UanCfg:
             return []
         logger.debug("retrieved SLS network data: %s", ret)
         return ret
-
-    @classmethod
-    def __get_bican_pool(cls):
-        """Learn the Bifurcated CAN address pool to be
-        used (CHN or CAN) for user access.  If the pool can't be
-        learned, then either use a default of 'customer_access' if
-        REQUIRE_BICAN is false or not set, or fail with an informative
-        error message.
-
-        """
-        # Declare a default BiCAN setting to use if none can be found.
-        # Note that the SystemDefaultRoute (which would normally be
-        # 'CAN' or 'CHN' is None here, that signals that no BiCAN
-        # config was found in case we are enforcing BiCAN existence.
-        default_props = {
-            'SystemDefaultRoute': None
-        }
-        default_bican = {
-            'Name': "BICAN",
-            'ExtraProperties': default_props,
-        }
-        pool_map = {
-            'CAN': "customer-access",
-            'CHN': "customer-high-speed",
-            'CMN': "customer-access",
-        }
-        logger.debug("getting require_bican")
-        require_bican = os.environ.get('REQUIRE_BICAN', 'false').lower()
-        logger.debug("require_bican = %s", require_bican)
-        default_pool = (
-            "customer-access" if require_bican == 'false'
-            else None
-        )
-        logger.debug("default_pool = %s", default_pool)
-        networks = cls.__get_sls_networks()
-        bican_list = [net for net in networks if net['Name'] == "BICAN"]
-        bican = bican_list[0] if bican_list else default_bican
-        bican_props = bican.get('ExtraProperties', default_props)
-        logger.debug("bican_props: %s", bican_props)
-        pool = pool_map.get(bican_props['SystemDefaultRoute'], default_pool)
-        logger.debug("pool = %s", pool)
-        if pool is None:
-            # Didn't find a pool and this system doesn't allow a
-            # default pool so fail here.
-            logger.error(
-                "can't find valid BiCAN config in SLS: networks = %s",
-                networks
-            )
-            msg = (
-                "Bifurcated CAN configuration is required on the host system "
-                "and could not be found.  If there is no Bifurcated "
-                "CAN on this platform, ask your system administrator "
-                "to set 'require_bican' to false in the site "
-                "customizations for cray-uan-mgr."
-            )
-            abort(400, msg)
-        return pool
