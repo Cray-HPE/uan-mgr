@@ -22,34 +22,10 @@ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */}}
 ---
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: cray-uas-mgr-etcd
-  namespace: {{ .Release.Namespace }}
-rules:
-  - apiGroups: ["batch", "extensions"]
-    resources: ["jobs", "jobs/status"]
-    verbs: ["get", "list", "watch"]
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: cray-uas-mgr-etcd
-  namespace: {{ .Release.Namespace }}
-subjects:
-  - kind: ServiceAccount
-    name: cray-uas-mgr
-    namespace: {{ .Release.Namespace }}
-roleRef:
-  kind: Role
-  name: cray-uas-mgr-etcd
-  apiGroup: rbac.authorization.k8s.io
----
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: "cray-uas-mgr"
+  name: "cray-uan-mgr"
 rules:
 - apiGroups: ["batch", "extensions"]
   resources: ["jobs", "jobs/status"]
@@ -64,13 +40,13 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: "cray-uas-mgr"
+  name: "cray-uan-mgr"
 subjects:
 - kind: ServiceAccount
-  name: cray-uas-mgr
+  name: cray-uan-mgr
   namespace: {{ .Release.Namespace }}
   apiGroup: ""
 roleRef:
   kind: ClusterRole
-  name: "cray-uas-mgr"
+  name: "cray-uan-mgr"
   apiGroup: "rbac.authorization.k8s.io"
